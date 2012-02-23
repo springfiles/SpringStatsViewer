@@ -1,0 +1,54 @@
+This is the README for SpringStatsViewer
+----------------------------------------
+
+SpringStatsViewer is a small program that
+allows you to view the player statistics
+and graphs you normally get to see at the
+end of the game without having to replay
+the whole game.
+
+To use it, you must have a working python
+installation with working tkinter and Tix
+modules. The standard python distribution for
+2.7 on Windows includes it.
+
+No installer is provided, so here are the
+instructions.
+
+Place the 2 .py files contained in the archive
+on your filesystem and simply do on the command
+line:
+
+python SpringStatsViewer.py (Windows - with console)
+pythonw SpringStatsViewer.py (Windows - no console)
+
+or, alternatively, make a shortcut, so it uses
+the Spring Demo file directory as current directory.
+Python is included in my standard search path, you may
+have to prepend a path to the python and/or pythonw
+executables.
+
+For Linux (untested), you can do the same or
+do 'chmod +x SpringStatsViewer.py' once and you
+can run it as any other executable.
+
+If all is well, you should get a nice big window
+with a menu at the top and a black background.
+Select a demo file on your filesystem (for me they
+live in 'Documents/My Games/Spring/demos')
+
+The current version is 0.1, which means
+that it is somewhat immature but workable.
+For instance, there are issues with games 
+that include bots (including Chickens).
+
+Also, it is currently only tested on
+Python 2.7.2, Windows 7 and only on Zero-K
+games, but it might just work on any other platform 
+with a graphical interface as no obvious platform
+dependencies were introduced.
+
+
+Have fun.
+
+Rene van 't Veen
