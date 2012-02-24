@@ -205,36 +205,39 @@ class DemoFileReader:
             return False
         self.file.seek(0, 0)
         # read the 'fixed' header first
-        size = struct.calcsize('=16s2i16s')
+        size = struct.calcsize('=16s2i')
         buffer = self.file.read(size)
         if len(buffer) != size:
             self._lasterror = 'Unable to read fixed header from ' + self.filename
             return False
-        values = struct.unpack('=16s2i16s', buffer)
+        values = struct.unpack('=16s2i', buffer)
         # check magic
         self.headervalues = values
         if values[0] != 'spring demofile\0':
             self._lasterror = 'File ' + self.filename + ' is probably not a spring demofile'
             return False
-        if values[1] != 4:
-            self._lasterror = 'File ' + self.filename + ' contains a version ' + str(values[1]) + ' other than 4'
-            return False
-        self.version = 4
+        self.version = values[1]
         # size of the header or minor file version
         self.headersize = values[2]
+        if self.version < 5:
+            buffer = self.file.read(struct.calcsize('<16s'))
+            values = struct.unpack('<16s', buffer)
+        else:
+            buffer = self.file.read(struct.calcsize('<256s'))
+            values = struct.unpack('<256s', buffer)
         # store the engine version in self.engine_version
-        position = values[3].find('\0')
+        position = values[0].find('\0')
         if position == -1:
-            self.engine_version = values[3]
+            self.engine_version = values[0]
         elif position == 0:
             self.engine_version = '' 
         else:
-            self.engine_version = values[3][0:position]
+            self.engine_version = values[0][0:position]
         # the next part concerns game ID and various chunk sizes
         size = struct.calcsize('=16sQ12i')
-        if size + len(buffer) != self.headersize:
-            self._lasterror = 'File ' + self.filename + ' has header length ' + str(self.headersize) + ', expected ' + str(size + len(buffer))
-            return False
+        #if size + len(buffer) != self.headersize:
+            #self._lasterror = 'File ' + self.filename + ' has header length ' + str(self.headersize) + ', expected ' + str(size + len(buffer))
+            #return False
         buffer = self.file.read(size)
         if len(buffer) != size:
             self._lasterror = 'Unable to read variable header from ' + self.filename
