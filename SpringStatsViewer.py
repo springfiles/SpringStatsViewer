@@ -26,6 +26,7 @@ import tkFileDialog
 import tkMessageBox
 import SpringDemoFile
 import sys
+import os
 
 __author__ = 'rene'
 __version__ = '0.1.0'
@@ -74,10 +75,14 @@ class Application(Tix.Frame):
         to be displayed.
         '''
         # let the user select a Spring Demo File and attempt to open it
+	initDir = "."
+	if self.demofile != None:
+		initDir = os.path.dirname(self.demofile.filename)
         file = tkFileDialog.askopenfile(
             filetypes=[('Spring Demo File', '*.sdf'), ('All files', '*.*')],
             defaultextension='.sdf',
-            title='Select a Spring Demo File')
+            title='Select a Spring Demo File',
+            initialdir = initDir)
         # in contrast to the documentation, askopenfile returns an open file instead of
         # a string with the filename so we just get the name of that and reopen it
         # in the demo file reader.
