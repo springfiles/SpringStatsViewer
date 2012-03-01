@@ -25,6 +25,7 @@ import Tix
 import tkFileDialog
 import tkMessageBox
 import SpringDemoFile
+import sys
 
 __author__ = 'rene'
 __version__ = '0.1.0'
@@ -33,25 +34,10 @@ __version__ = '0.1.0'
 # The viewer application is contained in a single top level window
 #
 class Application(Tix.Frame):
-    def __open(self):
+    def openfile(self, filename):
         '''
-        Callback handler for File|Open
-        
-        Prompts the user for a spring demo file and open it, causing the statistics if available
-        to be displayed.
+        loads a file
         '''
-        # let the user select a Spring Demo File and attempt to open it
-        file = tkFileDialog.askopenfile(
-            filetypes=[('Spring Demo File', '*.sdf'), ('All files', '*.*')],
-            defaultextension='.sdf',
-            title='Select a Spring Demo File')
-        # in contrast to the documentation, askopenfile returns an open file instead of
-        # a string with the filename so we just get the name of that and reopen it
-        # in the demo file reader.
-        if file == None:
-            return
-        filename = file.name
-        file.close()
         if self.demofile != None:
             self.demofile = None
             self.teams = dict()
@@ -80,7 +66,26 @@ class Application(Tix.Frame):
         self.assembleteamstructure()
         self.drawgameinfo(self.canvas)
         self.menuFile.entryconfigure(1, state=Tix.NORMAL)
+    def __open(self):
+        '''
+        Callback handler for File|Open
         
+        Prompts the user for a spring demo file and open it, causing the statistics if available
+        to be displayed.
+        '''
+        # let the user select a Spring Demo File and attempt to open it
+        file = tkFileDialog.askopenfile(
+            filetypes=[('Spring Demo File', '*.sdf'), ('All files', '*.*')],
+            defaultextension='.sdf',
+            title='Select a Spring Demo File')
+        # in contrast to the documentation, askopenfile returns an open file instead of
+        # a string with the filename so we just get the name of that and reopen it
+        # in the demo file reader.
+        if file == None:
+            return
+        filename = file.name
+        file.close()
+        self.openfile(filename)
         
     def __close(self):
         '''
@@ -1288,6 +1293,9 @@ class Application(Tix.Frame):
 if __name__ == '__main__':
     root = Tix.Tk()
     app = Application(master=root)
+    if len(sys.argv)>0:
+        app.openfile(sys.argv[1])
     app.mainloop()
     if not app.isdestroyed():
         root.destroy()
+
