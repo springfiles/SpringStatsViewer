@@ -1298,7 +1298,7 @@ class Application(Tix.Frame):
 if __name__ == '__main__':
     root = Tix.Tk()
     app = Application(master=root)
-    if len(sys.argv)>0:
+    if len(sys.argv)>1:
         app.openfile(sys.argv[1])
     app.mainloop()
     if not app.isdestroyed():
