@@ -6,14 +6,14 @@
 #        on linux: chmod +x SpringStatsViewer.py; ./SpringStatsViewer.py (untested)
 #
 # Tested on Python 2.7.2, Windows 7 on ZK Games only, YMMV on other platforms and other games based on Spring
-# 
+#
 # (C) 2011, Rene van 't Veen
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -48,7 +48,7 @@ class Application(Tix.Frame):
             self.menuFile.entryconfigure(1, state=Tix.DISABLED)
             self.menuView.entryconfigure(1, state=Tix.DISABLED)
             self.menuView.entryconfigure(2, state=Tix.DISABLED)
-        
+
         self.demofile = SpringDemoFile.DemoFileReader(filename,dirname=None)
         # read the header
         if self.demofile.header():
@@ -70,7 +70,7 @@ class Application(Tix.Frame):
     def __open(self):
         '''
         Callback handler for File|Open
-        
+
         Prompts the user for a spring demo file and open it, causing the statistics if available
         to be displayed.
         '''
@@ -91,11 +91,11 @@ class Application(Tix.Frame):
         filename = file.name
         file.close()
         self.openfile(filename)
-        
+
     def __close(self):
         '''
         Callback handler for the File|Close menu entry.
-        
+
         Closes the  demofile and resets the GUI state to the default view
         '''
         # print 'Close currently open SDF file'
@@ -109,16 +109,16 @@ class Application(Tix.Frame):
         self.menuView.entryconfigure(1, state=Tix.DISABLED)
         self.menuView.entryconfigure(2, state=Tix.DISABLED)
         self.drawgameinfo(self.canvas)
-        
+
     def __exit(self):
         '''
         Callback handler for the File|Exit menu entry.
-        
+
         Causes the application to quit
         '''
         # print 'Exit the application'
         self.quit()
-        
+
     def pickcolor(self, teamno, teamplayer, nteams):
         '''
         Returns an RGB triplet in Tk format giving a 'color' to a player depending on which team he is in
@@ -169,7 +169,7 @@ class Application(Tix.Frame):
         result =  '#%02X%02X%02X' % ( ir, ig, ib )
         # print str(teamno) + ':' + str(teamplayer) + 'HSV: ' + str(h) +', ' + str(s) + ', ' + str(v) + ' RGB: ' + result
         return result
-    
+
     def assembleteamstructure(self):
         '''
         Fills the self.teams dictionary, the self.playerorder list and the self.playerbykey structures
@@ -199,7 +199,7 @@ class Application(Tix.Frame):
                 teamplayerno = teamplayerno + 1
                 playerno = playerno + 1
             teamno = teamno + 1
-        
+
     def drawgameinfo(self, canvas):
         '''
         Draw on the game info canvas to display meta-information about the loaded game
@@ -207,11 +207,11 @@ class Application(Tix.Frame):
         # clear canvas
         for tag in canvas.find_all():
             canvas.delete(tag)
-            
+
         # print 'Canvas w=' + str(canvas['width']) + ' h=' + str(canvas['height'])
         # print 'Current size: w=' + str(self.canvas.winfo_width()) + ' h=' + str(self.canvas.winfo_height())
         # print 'Requested size: w=' + str(self.canvas.winfo_reqwidth()) + ' h=' + str(self.canvas.winfo_reqheight())
-      
+
         if self.demofile == None:
             # No game loaded
             canvas.create_text(400, 300, text = 'No demo file loaded',
@@ -315,18 +315,18 @@ class Application(Tix.Frame):
                         # print 'Player '+ p + ' with width ' + str(box[2]-box[0]) + ' fits at ' + str(xoffset)
                         canvas.move(id, xoffset - taboffset, 0)
                         xoffset = xoffset + box[2] - box[0] + offset
-                    
+
                 n = n + 1
                 teamno = teamno + 1
-                
-                
+
+
     def drawplayerstats(self, canvas):
         '''
         Draw on the player stats canvas to statistics about player interaction
-        
+
         Player stats are displayed as a table with the top heading row
         Player KP/m MP/m MC/m CMD/m Units/CMD
-        
+
         Each player gets a row, unless all values are zero in which case we say that the player quit before the game was over
         '''
         # clear canvas
@@ -363,7 +363,7 @@ class Application(Tix.Frame):
             disabledfill='#EEE',
             fill='#FFF')
         hrow.append(id)
-            
+
         id = canvas.create_text(670, 10, anchor=Tix.NE, text='CMD/m',
             state=Tix.DISABLED,
             disabledfill='#EEE',
@@ -375,8 +375,8 @@ class Application(Tix.Frame):
             disabledfill='#EEE',
             fill='#FFF')
         hrow.append(id)
-            
-            
+
+
         # count the number of players and sort their names
         ids = list()
         n = 1
@@ -388,7 +388,7 @@ class Application(Tix.Frame):
                 disabledfill=self.playerbykey[p][0],
                 fill=self.playerbykey[p][0])
             rowids.append(id)
-         
+
             stats = self.demofile.playerstatistics[p]
             if ( stats.mousePixels == 0 and
                 stats.mouseClicks == 0 and
@@ -436,7 +436,7 @@ class Application(Tix.Frame):
                 rowids.append(id)
             n = n + 1
             ids.append(rowids)
-            
+
         # print ids
         # get maximum width of column n to adjust offset of column n + 1
         n = 0
@@ -462,7 +462,7 @@ class Application(Tix.Frame):
                 if len(row) > 2 or n < 1:
                     canvas.move(row[n+1], xdelta, 0)
             n = n + 1
-    
+
     def __categorybuttonselected(self, event, button, canvas):
         '''
         Event handler that is called whenever the user releases the (left) mouse button on a category button
@@ -478,52 +478,52 @@ class Application(Tix.Frame):
         for b in self.graphcategorybuttons:
             zb = self.graphcategorybuttons[b]
             if zb[0] == self.selectedgraphcategory:
-                canvas.itemconfigure(zb[2], 
+                canvas.itemconfigure(zb[2],
                     fill='#444',
                     outline='#444',
                     activeoutline='#888',
                     activefill='#888')
-                canvas.itemconfigure(zb[1], 
+                canvas.itemconfigure(zb[1],
                     disabledfill='#EEE',
                     fill='#EEE')
                 for ib in self.graphitembuttons:
                     zi = self.graphitembuttons[ib]
                     if zi[0] == self.selectedgraphcategory and zi[1] == self.selectedgraphitem:
                         # make the currently selected item button appear normal
-                        canvas.itemconfigure(zi[3], 
+                        canvas.itemconfigure(zi[3],
                             fill='#444',
                             outline='#444',
                             activeoutline='#888',
                             activefill='#888')
-                        canvas.itemconfigure(zi[2], 
+                        canvas.itemconfigure(zi[2],
                             disabledfill='#EEE',
                             fill='#EEE')
                     if zi[0] == self.selectedgraphcategory:
                         # hide the item buttons associated with the category
                         canvas.itemconfigure(zi[3], state=Tix.HIDDEN)
                         canvas.itemconfigure(zi[2], state=Tix.HIDDEN)
-                        
+
         self.selectedgraphcategory = n
         self.selectedgraphitem = 0
         zb = self.graphcategorybuttons[button]
-        canvas.itemconfigure(zb[2], 
+        canvas.itemconfigure(zb[2],
             fill='#CCC',
             outline='#CCC',
             activeoutline='#EEE',
             activefill='#EEE')
-        canvas.itemconfigure(zb[1], 
+        canvas.itemconfigure(zb[1],
             disabledfill='#111',
             fill='#111')
         for ib in self.graphitembuttons:
             zi = self.graphitembuttons[ib]
             if zi[0] == self.selectedgraphcategory and zi[1] == self.selectedgraphitem:
                 # make the currently selected item button appear active
-                canvas.itemconfigure(zi[3], 
+                canvas.itemconfigure(zi[3],
                     fill='#CCC',
                     outline='#CCC',
                     activeoutline='#EEE',
                     activefill='#EEE')
-                canvas.itemconfigure(zi[2], 
+                canvas.itemconfigure(zi[2],
                     disabledfill='#111',
                     fill='#111')
             if zi[0] == self.selectedgraphcategory:
@@ -532,8 +532,8 @@ class Application(Tix.Frame):
                 canvas.itemconfigure(zi[2], state=Tix.DISABLED)
         self.cleargraph(canvas)
         self.drawgraph(canvas)
-            
-        
+
+
     def __itembuttonselected(self, event, button, canvas):
         '''
         Event handler that is called whenever the user releases the (left) mouse button on a graph button
@@ -549,29 +549,29 @@ class Application(Tix.Frame):
         for b in self.graphitembuttons:
             zb = self.graphitembuttons[b]
             if zb[0] == self.selectedgraphcategory and zb[1] == self.selectedgraphitem:
-                canvas.itemconfigure(zb[3], 
+                canvas.itemconfigure(zb[3],
                     fill='#444',
                     outline='#444',
                     activeoutline='#888',
                     activefill='#888')
-                canvas.itemconfigure(zb[2], 
+                canvas.itemconfigure(zb[2],
                     disabledfill='#EEE',
                     fill='#EEE')
                 break
         self.selectedgraphitem = m
         zb = self.graphitembuttons[button]
-        canvas.itemconfigure(zb[3], 
+        canvas.itemconfigure(zb[3],
             fill='#CCC',
             outline='#CCC',
             activeoutline='#EEE',
             activefill='#EEE')
-        canvas.itemconfigure(zb[2], 
+        canvas.itemconfigure(zb[2],
             disabledfill='#111',
             fill='#111')
         self.cleargraph(canvas)
         self.drawgraph(canvas)
-            
-        
+
+
     def __playerbuttonselected(self, event, button, canvas):
         '''
         Event handler that is called whenever the user releases the (left) mouse button on a player button
@@ -598,13 +598,13 @@ class Application(Tix.Frame):
             m[3] = True
             canvas.itemconfigure(self.graphlines[m[4]],
                 state=Tix.NORMAL)
-            
-        
+
+
     def setupgraphselectionbuttons(self, canvas, width=200):
         '''
         This method draws the graph selection 'buttons' on the specified canvas and binds events to the them
         '''
-        
+
         y = 10
         # category buttons, ie. Metal, Energy, Damage, Units
         self.graphcategorybuttons = dict()
@@ -646,7 +646,7 @@ class Application(Tix.Frame):
         # draw all item buttons at once, but hide the texts and buttons from other categories
         # than the current one.
         for masters in self.graphbuttonlabels:
-            y = ytop 
+            y = ytop
             m = 0
             for item in masters[1]:
                 if n == self.selectedgraphcategory:
@@ -655,7 +655,7 @@ class Application(Tix.Frame):
                 else:
                     sb = Tix.HIDDEN
                     st = Tix.HIDDEN
-                    
+
                 if m == self.selectedgraphitem:
                     clrt = '#111'
                     clrbtn = '#CCC'
@@ -687,7 +687,7 @@ class Application(Tix.Frame):
                 canvas.tag_lower(id2,id)
                 m = m + 1
             n = n + 1
-            
+
     def cleargraphselectionbuttons(self, canvas):
         '''
         This method unbinds the graph selection buttons from any event handlers and
@@ -712,7 +712,7 @@ class Application(Tix.Frame):
         '''
         This method draws the player selection 'buttons' on the specified canvas and binds events to the them
         '''
-        
+
         y = 10
         idplayers = list()
         # put labels for each player in the same place for now
@@ -727,7 +727,7 @@ class Application(Tix.Frame):
             idplayers.append(id)
             box = canvas.bbox(id)
             offset = box[2] - box[0]
-            
+
             if offset > largest:
                 largest = offset
             if lineoffset < box[3] - box[1]:
@@ -760,14 +760,14 @@ class Application(Tix.Frame):
                 fill='#222',
                 outline='#222',
                 state=Tix.NORMAL)
-                
+
             def handler(event, self=self, button=boxid, canvas=canvas):
                 self.__playerbuttonselected(event, button, canvas)
             tag = 'playerbtn_' + str(boxid)
             canvas.addtag_withtag(tag, boxid)
             canvas.tag_bind(tag, sequence='<ButtonRelease-1>', func=handler)
             canvas.tag_lower(boxid,id)
-            
+
             self.playerbuttons[boxid] = [ p, id, boxid, True, n ]
 
             if box[1] + lineoffset - 5 > low:
@@ -795,10 +795,10 @@ class Application(Tix.Frame):
     def setupverticalaxis(self, canvas, left, top, right, bottom):
         '''
         This method draws the vertical axis of the graph, including tick marks.
-        
+
         Note that the graph area itself extends from (left, top) to (right, bottom), but the graph marks extend
         to left - 4. It is up to the caller to ensure that the graphing area will not overlap
-        
+
         The method returns the scaling factor to use on the vertical axis
         '''
         # determine minimum / maximum displayable value
@@ -814,7 +814,7 @@ class Application(Tix.Frame):
                     minval = v
 
         # vertical axis
-        id = canvas.create_line(left, top, 
+        id = canvas.create_line(left, top,
             left, bottom,
             fill='#FFF',
             disabledfill='#EEE',
@@ -872,17 +872,17 @@ class Application(Tix.Frame):
             self.verticalaxis.append(id)
             offset = offset + ticks
         return scale
-    
+
     def setuphorizontalaxis(self, canvas, left, top, right, bottom):
         '''
         Set up the horizontal axis of the graph, including tick marks.
-        
+
         Note that the graph area itself extends from (left, top) to (right, bottom), but the graph marks extend
         to bottom + 5 + the height of a text string. It is up to the caller to ensure that the graphing area will not overlap
-        
+
         The method returns the scaling factor to use on the horizontal axis
         '''
-        id = canvas.create_line(left, bottom, 
+        id = canvas.create_line(left, bottom,
             right, bottom,
             fill='#FFF',
             disabledfill='#EEE',
@@ -980,7 +980,7 @@ class Application(Tix.Frame):
                 fill=self.playerbykey[p][0])
             self.graphlines.append(id)
             n = n + 1
-    
+
     def setupgraph(self, canvas, left, top, right, bottom):
         '''
         Dimensions and creates the graph
@@ -997,7 +997,7 @@ class Application(Tix.Frame):
         self.graphboxtop = top + 4
         self.graphboxbottom = bottom - 8 - ( box[3] - box[1] )
         self.drawgraph(canvas)
-    
+
     def cleargraph(self, canvas):
         '''
         Clears the graph
@@ -1011,20 +1011,20 @@ class Application(Tix.Frame):
         self.graphlines = list()
         self.horizontalaxis = list()
         self.verticalaxis = list()
-            
+
     def drawteamstats(self, canvas):
         '''
         Draw on the teams stats canvas to display various graphs of performance
 
         The graph legend, consisting of the player names is displayed above the graph
-        
+
         To the left of the graph, there is a series of buttons for selecting the graph to display
-        
+
         The graph itself consists of two axes, horizontal for time, vertical for the element graphed
-        
+
         Only the vertical axis is labelled with the quantity of the element graphed.
-        
-        
+
+
         '''
         # clear canvas
         self.cleargraphselectionbuttons(canvas)
@@ -1042,7 +1042,7 @@ class Application(Tix.Frame):
         self.setupgraphselectionbuttons(canvas)
         # the graph itself
         self.setupgraph(canvas, 200, low, int(self.canvas['width']), int(self.canvas['height']))
-        
+
     def __showinfo(self):
         '''
         This method is invoked by the 'View|Game Information' menu option
@@ -1054,7 +1054,7 @@ class Application(Tix.Frame):
             self.cleargraph(self.canvas)
         self.currentview = 0
         self.drawgameinfo(self.canvas)
-        
+
     def __showtable(self):
         '''
         This method is invoked by the 'View|Player Statistics' menu option
@@ -1066,8 +1066,8 @@ class Application(Tix.Frame):
             self.cleargraph(self.canvas)
         self.currentview = 1
         self.drawplayerstats(self.canvas)
-        
-        
+
+
     def __showgraph(self):
         '''
         This method is invoked by the 'View|Team Graph' menu option
@@ -1078,7 +1078,7 @@ class Application(Tix.Frame):
         self.currentview = 2
         self.cleargraph(self.canvas)
         self.drawteamstats(self.canvas)
-        
+
     def __showabout(self):
         '''
         This method is invoked by the 'Help|About' menu option
@@ -1095,9 +1095,9 @@ class Application(Tix.Frame):
         text += 'the information on which Zero-K bases its awards.\n\n'
         text += 'Version: ' + __version__ + '\n'
         text += 'Demo file reader version: ' + SpringDemoFile.__version__ + '\n'
-        
+
         tkMessageBox.showinfo('About Spring Stats Viewer', text)
-        
+
     def __redrawcanvas(self):
         '''
         This callback method is invoked after a resizing of the canvas and draws whatever
@@ -1111,11 +1111,11 @@ class Application(Tix.Frame):
         else:
             self.cleargraph(self.canvas)
             self.drawteamstats(self.canvas)
-        
+
     def __canvasresized(self, event):
         '''
         Callback method that is invoked when the canvas is resized
-        
+
         Resize the canvas and schedule a redraw in case the canvas is larger
         than the minimum area of 800 x 600
         '''
@@ -1151,7 +1151,7 @@ class Application(Tix.Frame):
         else:
             # no size change vertical
             h = None
-            
+
         if w != None and h != None:
             # print 'Resizing canvas: w=' + str(event.width) + ' h=' + str(event.height)
             # print 'New canvas size: w=' + str(w) + ' h=' + str(h)
@@ -1180,23 +1180,23 @@ class Application(Tix.Frame):
         '''
         Callback method that is invoked when the user destroys the main window through the close
         button.
-        
+
         The method just sets a flag that can be tested before the calling code attempts to destroy
         the main window (which it already is, if the user hits the close button)
         '''
         self.destroyed = True
-        
+
     def isdestroyed(self):
         '''
         Returns true if the main window is already destroyed
         '''
         return self.destroyed
-        
+
     def createWidgets(self):
         '''
         Create all the widgets in the apps main window
         '''
-        
+
         # create the menubar
         top = self.winfo_toplevel()
         self.menuBar = Tix.Menu(top, tearoff=0)
@@ -1226,7 +1226,7 @@ class Application(Tix.Frame):
         self.menuBar.add_cascade(label='View',menu=self.menuView)
         self.menuView.entryconfigure(1, state=Tix.DISABLED)
         self.menuView.entryconfigure(2, state=Tix.DISABLED)
-        
+
         self.menuHelp = Tix.Menu(self.menuBar, tearoff=0)
         # index 0
         self.menuHelp.add_command(label='About', command=self.__showabout)
@@ -1238,13 +1238,13 @@ class Application(Tix.Frame):
         self.canvas.grid(row=0, column=0, sticky=Tix.N + Tix.S + Tix.E + Tix.W)
         self.canvas.bind(sequence='<Configure>',func=self.__canvasresized)
         self.drawgameinfo(self.canvas)
-        
-        
+
+
     def __init__(self, master=None):
         '''
         Constructor for the main application demo
         '''
-        
+
         self.demofile = None
         self.teams = dict()
         self.playerorder = list()
@@ -1269,25 +1269,25 @@ class Application(Tix.Frame):
             ( 'Sent', 'unitsSent'),
             ( 'Captured', 'unitsCaptured'),
             ( 'Stolen', 'unitsOutCaptured'))))
-        
+
         self.selectedgraphcategory = 2
         self.selectedgraphitem = 0
         self.selectedgraphattribute = 'damageDealt'
-        
+
         # view 0 is the game info
         # view 1 is the player stats
         # view 2 is the team graph
         self.currentview = 0
-        
+
         self.redrawscheduled = False
-            
+
         self.graphitembuttons = dict()
         self.graphcategorybuttons = dict()
         self.playerbuttons = dict()
         self.verticalaxis = list()
         self.horizontalaxis = list()
         self.graphlines = list()
-            
+
         Tix.Frame.__init__(self, master)
         self.destroyed = False
         self.bind(sequence='<Destroy>',func=self.__destroying)

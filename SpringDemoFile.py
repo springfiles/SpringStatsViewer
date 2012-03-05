@@ -2,20 +2,20 @@
 #
 # SpringDemoFile - Class library for parsing Spring Demo Files
 #
-# The module should be placed in a directory in your Python class path or in the 
+# The module should be placed in a directory in your Python class path or in the
 # directory of any module that is using it.
 #
 # Tested on Python 2.7.2, Windows 7 on ZK Games only, YMMV on other platforms and other games based on Spring
 #
 # There are known issues with games that include bots and/or chickens (i.e. it doesnt work)
-# 
+#
 # (C) 2011, Rene van 't Veen
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -38,7 +38,7 @@ class PlayerStatistics:
     def __init__(self):
         '''
         Initialize all member variables to zero
-        
+
         Note that this will also be the value for any player that leaves the game before the game is over
         '''
         # total mouse movement during game
@@ -55,12 +55,12 @@ class PlayerStatistics:
         '''
         Pretty printing the structure
         '''
-        return ( 'KP: ' + str(self.keyPresses) + 
-            ', MP: ' + str(self.mousePixels) + 
-            ', MC: ' + str(self.mouseClicks) + 
-            ', NC: ' + str(self.numCommands) + 
+        return ( 'KP: ' + str(self.keyPresses) +
+            ', MP: ' + str(self.mousePixels) +
+            ', MC: ' + str(self.mouseClicks) +
+            ', NC: ' + str(self.numCommands) +
             ', UC: ' + str(self.unitCommands) )
-            
+
 
 class TeamStatistics:
     '''
@@ -98,7 +98,7 @@ class TeamStatistics:
         self.damageReceived = 0.0
         # number of units produced
         self.unitsProduced = 0
-        
+
         self.unitsDied = 0
         self.unitsReceived = 0
         self.unitsSent = 0
@@ -108,18 +108,18 @@ class TeamStatistics:
         '''
         Pretty printing
         '''
-        return ( str(self.frame) + ' M(Use: ' + str(self.metalUsed) + 
+        return ( str(self.frame) + ' M(Use: ' + str(self.metalUsed) +
             ' Prod: ' + str(self.metalProduced) +
             ' Excess: ' + str(self.metalExcess) +
-            ' Rcv: ' + str(self.metalReceived) + 
+            ' Rcv: ' + str(self.metalReceived) +
             ' Sent: ' + str(self.metalSent) +
-            ') E(Use: ' + str(self.energyUsed) + 
+            ') E(Use: ' + str(self.energyUsed) +
             ' Prod: ' + str(self.energyProduced) +
             ' Excess: ' + str(self.energyExcess) +
-            ' Rcv: ' + str(self.energyReceived) + 
+            ' Rcv: ' + str(self.energyReceived) +
             ' Sent: ' + str(self.energySent) +
             ') Damage(Done: ' + str(self.damageDealt) +
-            ' Received: ' + str(self.damageReceived) + 
+            ' Received: ' + str(self.damageReceived) +
             ') Units(Prod: ' + str(self.unitsProduced) +
             ' Dead: ' + str(self.unitsDied) +
             ' Rcv: ' + str(self.unitsReceived) +
@@ -127,8 +127,8 @@ class TeamStatistics:
             ' Cap: ' + str(self.unitsCaptured) +
             ' Steal: ' + str(self.unitsOutCaptured) +
             ')' )
-            
-    
+
+
 
 class DemoFileReader:
     '''
@@ -146,7 +146,7 @@ class DemoFileReader:
         self.file = None
         # see .error(), this member gets set to the last error or warning message
         self._lasterror = None
-        
+
         # major file format
         self.file_version = -1
         # minor file format or header size
@@ -171,12 +171,12 @@ class DemoFileReader:
         self.teamstatelemsize = 0
         self.teamstatperiod = 0
         self.winningteam = -1
-        
+
         # things we can infer from the header
         self.incomplete = True
         self.exited = False
         self.crashed = False
-        
+
         # the raw startscript
         self.startscript = None
         # real player details inferred from the start script
@@ -190,14 +190,14 @@ class DemoFileReader:
         self.playerstatistics = None
         # team statistics, call method teamstats()
         self.teamstatistics = None
-        
+
         # open the file, if it fails self.file will remain at None
         self.file = open(self.filename, 'rb')
-    
+
     def header(self):
         '''
         Reads the file header and stuffs whatever it read into data members. Do this only once.
-        
+
         Returns False if the header was not parsed successfully, True if it did
         '''
         if self.file == None:
@@ -230,7 +230,7 @@ class DemoFileReader:
         if position == -1:
             self.engine_version = values[0]
         elif position == 0:
-            self.engine_version = '' 
+            self.engine_version = ''
         else:
             self.engine_version = values[0][0:position]
         # the next part concerns game ID and various chunk sizes
@@ -273,11 +273,11 @@ class DemoFileReader:
                 self.incomplete = False
                 # print self.filename + ': ' + str(self.numplayers) + ' players in ' + str(self.numteams) + ' teams, team #' + str(self.winningteam) + ' won.'
         return True
-    
+
     def script(self):
         '''
         Read the startscript and parse it.
-        
+
         On success, the raw startscript is returned, on failure None is returned
         '''
         self.startscript = None
@@ -381,7 +381,7 @@ class DemoFileReader:
                 self._lasterror += 'No match: ' + line[0:60] + ' ... ' + '\n'
             errors = errors + 1
 
-        if level != 0: 
+        if level != 0:
             self._lasterror = 'Unmatched { at EOF in start script' + '\n'
             errors = errors + 1
 
@@ -389,21 +389,21 @@ class DemoFileReader:
             self._lasterror += str(errors) + ' error(s) while parsing start script in file ' + self.filename
             return None
         self._lasterror = None
-        
+
         if 'game' not in self.settings or type(self.settings['game']) != type(dict()):
             self._lasterror = 'Game settings not present or not a dictionary'
             return None
-        
+
         if 'gametype' in self.settings['game'] and type(self.settings['game']['gametype']) == type(''):
             self.gametype = self.settings['game']['gametype']
         else:
             self.gametype = 'Unknown'
-        
+
         if 'mapname' in self.settings['game'] and type(self.settings['game']['mapname']) == type(''):
             self.map = self.settings['game']['mapname']
         else:
             self.map = 'Unknown map'
-        
+
         # find out who the players are
         playerseq = 0
         self.players = list()
@@ -439,9 +439,9 @@ class DemoFileReader:
                 self.players.append((playername, realteam, team, dictname))
             else:
                 self.players.append(None)
-                
+
             playerseq = playerseq + 1
-            
+
         # find out who the teams are
         teamseq = 0
         self.teams = list()
@@ -471,11 +471,11 @@ class DemoFileReader:
                 return None
                 
         return self.startscript
-        
+
     def playerstats(self):
         '''
         Attempts to retrieve the player statistics from the file.
-        
+
         Returns None on failure, a dictionary keyed to real player name otherwise. The value of this dictionary is a tuple of the player stat entries
         '''
         if self.file == None:
@@ -518,11 +518,11 @@ class DemoFileReader:
                 self.playerstatistics[x[0]] = p
             offset = offset + self.playerstatelemsize
         return self.playerstatistics
-        
+
     def teamstats(self):
         '''
         Attempts to retrieve the team statistics from the file.
-        
+
         Returns None on failure, a dictionary keyed to real player name otherwise. The value of this dictionary is a list of the
         '''
         if self.file == None:
@@ -563,7 +563,7 @@ class DemoFileReader:
             xsize = xsize + size + values[0] * self.teamstatelemsize
         # check for consistency
         if xsize != self.teamstatchunksize:
-            self._lasterror = 'Calculated (' + str(xsize) + ') and real (' + str(self.teamchunksize) + ') team statistic chunk size differ'
+            self._lasterror = 'Calculated (' + str(xsize) + ') and real (' + str(self.teamstatchunksize) + ') team statistic chunk size differ'
             return None
         self.teamstatistics = dict()
         team = 0
@@ -601,17 +601,17 @@ class DemoFileReader:
         Simple accessor to get as the last error message, returns None if there was no error
         '''
         return self._lasterror
-        
+
     def close(self):
         '''
         Closes the input file, most other operation will now fail silently
         '''
         self.file.close()
         self.file = None
-        
+
 if __name__ == '__main__':
     print 'This is the Spring Demo File class library, it should not be executed directly.'
     print 'Although it might have included a self-test here'
 
-        
-        
+
+
