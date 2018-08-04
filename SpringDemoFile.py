@@ -315,19 +315,19 @@ class DemoRecord:
         have it, or if the record cannot be parsed
         """
         t = self.type()
-        if t == None:
+        if t is None:
             return None
         elif t == self.CHAT:
             return ord(self.data[3])
         else:
             return None
-        
+
     def text(self):
         """
         Returns the text of messages that have text or None if the message has no text
         """
         t = self.type()
-        if t == None:
+        if t is None:
             return None
         elif t == self.QUIT:
             # apparently there is a 0 byte in front of the label
@@ -363,25 +363,25 @@ class DemoRecord:
         if s == '\0':
             s = None
         return s
-    
+
     def spectator(self):
         """
         Returns the value of the spectator field in the createnewplayer record only or None.
         """
         t = self.type()
-        if t == None:
+        if t is None:
             return None
         elif t == self.CREATE_NEWPLAYER:
             return ord(self.data[3])
         else:
             return None
-        
+
     def reason(self):
         """
         Returns the value of the reason or type field in the PAUSED and PLAYERLEFT record only or None.
         """
         t = self.type()
-        if t == None:
+        if t is None:
             return None
         elif t == self.PAUSE:
             return ord(self.data[2])
@@ -389,13 +389,13 @@ class DemoRecord:
             return ord(self.data[2])
         else:
             return None
-        
+
     def team(self):
         """
         Returns the value of the team field in the records that have such a field or None.
         """
         t = self.type()
-        if t == None:
+        if t is None:
             return None
         elif t == self.CREATE_NEWPLAYER:
             return ord(self.data[4])
@@ -727,17 +727,17 @@ class DemoFileReader:
 
         Returns False if the header was not parsed successfully, True if it did
         """
-        if self.file == None:
+        if self.file is None:
             self._lasterror = 'File ' + self.filename + ' not open.'
             return False
         self.file.seek(0, 0)
         # read the 'fixed' header first
         size = struct.calcsize('=16s2i')
-        buffer = self.file.read(size)
-        if len(buffer) != size:
+        buffer_ = self.file.read(size)
+        if len(buffer_) != size:
             self._lasterror = 'Unable to read fixed header from ' + self.filename
             return False
-        values = struct.unpack('=16s2i', buffer)
+        values = struct.unpack('=16s2i', buffer_)
         # check magic
         self.headervalues = values
         if values[0] != 'spring demofile\0':
@@ -754,16 +754,16 @@ class DemoFileReader:
         else:
             # version 4
             size = struct.calcsize('16s')
-        nsize = len(buffer) 
-        buffer = self.file.read(size)
-        if len(buffer) != size:
+        nsize = len(buffer_)
+        buffer_ = self.file.read(size)
+        if len(buffer_) != size:
             self._lasterror = 'Unable to read engine version from ' + self.filename
             return False
         if self.version == 5:
-            values = struct.unpack('256s', buffer)
+            values = struct.unpack('256s', buffer_)
         else:
             # version 4
-            values = struct.unpack('16s', buffer)
+            values = struct.unpack('16s', buffer_)
         # store the engine version in self.engine_version
         position = values[0].find('\0')
         if position == -1:
@@ -772,17 +772,17 @@ class DemoFileReader:
             self.engine_version = ''
         else:
             self.engine_version = values[0][0:position]
-        nsize += len(buffer)
+        nsize += len(buffer_)
         # the next part concerns game ID and various chunk sizes
         size = struct.calcsize('=16sQ12i')
         if size + nsize != self.headersize:
-            self._lasterror = 'File ' + self.filename + ' has header length ' + str(self.headersize) + ', expected ' + str(size + len(buffer))
+            self._lasterror = 'File ' + self.filename + ' has header length ' + str(self.headersize) + ', expected ' + str(size + len(buffer_))
             return False
-        buffer = self.file.read(size)
-        if len(buffer) != size:
+        buffer_ = self.file.read(size)
+        if len(buffer_) != size:
             self._lasterror = 'Unable to read variable header from ' + self.filename
             return False
-        values = struct.unpack('=16sQ12i', buffer)
+        values = struct.unpack('=16sQ12i', buffer_)
         self.gameid = values[0]
         self.timestamp = values[1]
         self.scriptsize = values[2]
@@ -819,13 +819,13 @@ class DemoFileReader:
         return True
     
     def script(self):
-        '''
+        """
         Read the startscript and parse it.
-        
+
         On success, the raw startscript is returned, on failure None is returned
-        '''
+        """
         self.startscript = None
-        if self.file == None:
+        if self.file is None:
             self._lasterror = 'File ' + self.filename + ' not open.'
             return None
         if self.headersize == 0:
@@ -847,7 +847,7 @@ class DemoFileReader:
         currentdict = self.settings
         dictstack.append(currentdict)
         # precompile some regular expressions
-        hash = re.compile(r'^\s*\[\s*(\w+)\s*\]\s*$')
+        hash_ = re.compile(r'^\s*\[\s*(\w+)\s*\]\s*$')
         opening = re.compile(r'^\s*\{\s*$')
         closing = re.compile(r'^\s*\}\s*$')
         simple = re.compile(r'^\s*(\w+)\s*=(.*?);\s*$')
@@ -865,8 +865,8 @@ class DemoFileReader:
             line = self.startscript[position:nextposition]
             position = nextposition + 1
             currentline = currentline + 1
-            test = hash.match(line)
-            if test != None:
+            test = hash_.match(line)
+            if test is not None:
                 name = test.group(1)
                 if name in currentdict:
                     self._lasterror += 'Duplicate dictionary entry ' + name + ' in start script at line ' + str(currentline) + '\n'
@@ -878,7 +878,7 @@ class DemoFileReader:
                 lastdict = name
                 continue
             test = opening.match(line)
-            if test != None:
+            if test is not None:
                 if not expectedopen:
                     self._lasterror += 'No { expected in start script at line ' + str(currentline) + '\n'
                     errors = errors + 1
@@ -890,10 +890,10 @@ class DemoFileReader:
                 # print 'Pushed ' + lastdict + ' at level ' + str(level) + '[' + str(len(dictstack)) + ']'
                 continue
             test = empty.match(line)
-            if test != None:
+            if test is not None:
                 continue
             test = closing.match(line)
-            if test != None:
+            if test is not None:
                 if expectedopen:
                     self._lasterror += 'Expected opening { in start script at line ' + str(currentline) + '\n'
                     errors = errors + 1
@@ -908,7 +908,7 @@ class DemoFileReader:
                 # print 'Popped to level ' + str(level) + '[' + str(len(dictstack)) + ']'
                 continue
             test = simple.match(line)
-            if test != None:
+            if test is not None:
                 if expectedopen:
                     self._lasterror += 'Expected opening { in start script at line ' + str(currentline) + '\n'
                     errors = errors + 1
@@ -1087,13 +1087,13 @@ class DemoFileReader:
 
         Returns the number of demo chunks found or None if they cannot be read
         """
-        if self.file == None:
+        if self.file is None:
             self._lasterror = 'File ' + self.filename + ' not open.'
             return None
         if self.headersize == 0:
             self._lasterror = 'Cannot read demo stream, read the header first'
             return None
-        if self.players == None:
+        if self.players is None:
             self._lasterror = 'Cannot comprehend demo stream, read the start script first'
             return None
         if self.demostreamsize == 0:
@@ -1109,11 +1109,11 @@ class DemoFileReader:
             if n + chunkheader.size > self.demostreamsize:
                 self._lasterror = 'Demo stream truncated: incomplete chunk header'
                 return len(self.demorecords)
-            buffer = self.file.read(chunkheader.size)
-            if len(buffer) != chunkheader.size:
+            buffer_ = self.file.read(chunkheader.size)
+            if len(buffer_) != chunkheader.size:
                 self._lasterror = 'File ' + self.filename + ', demo chunk header truncated'
                 return len(self.demorecords)
-            values = chunkheader.unpack_from(buffer,0)
+            values = chunkheader.unpack_from(buffer_, 0)
             n += chunkheader.size
             # print 'Read chunk header #' + str(len(self.demorecords)) + ': at ' + str(values[0]) + ' l= ' + str(values[1]) + ' starting at ' + str(n)
             # stuff it in a new chunk
@@ -1124,11 +1124,11 @@ class DemoFileReader:
                 self._lasterror = 'Demo stream truncated: incomplete chunk record'
                 return len(self.demorecords)
             if values[1] != 0:
-                buffer = self.file.read(values[1])
-                if len(buffer) != values[1]:
+                buffer_ = self.file.read(values[1])
+                if len(buffer_) != values[1]:
                     self._lasterror = 'File ' + self.filename + ', demo chunk record truncated'
                     return len(self.demorecords)
-                chunk.data = buffer
+                chunk.data = buffer_
             # add record to list and repeat
             t = chunk.type()
             if t != chunk.KEYFRAME and t != chunk.NEWFRAME:
@@ -1168,10 +1168,10 @@ class DemoFileReader:
         if self.headersize == 0:
             self._lasterror = 'Cannot read chat log, read the header first'
             return None
-        if self.players == None:
+        if self.players is None:
             self._lasterror = 'Cannot comprehend demo stream, read the start script first'
             return None
-        if self.demorecords == None or len(self.demorecords) == 0:
+        if self.demorecords is None or len(self.demorecords) == 0:
             self._lasterror = 'Demo stream not available, read the demostream first'
             return None
         result = list()
@@ -1250,12 +1250,12 @@ class DemoFileReader:
                     src = None
                 dst = None
                 if rec.reason() == 0:
-                    if src != None:
+                    if src is not None:
                         s = src + ' resumed the game.'
                     else:
                         s = 'Someone resumed the game'
                 else:
-                    if src != None:
+                    if src is not None:
                         s = src + ' paused the game.'
                     else:
                         s = 'Someone paused the game'
@@ -1281,7 +1281,7 @@ class DemoFileReader:
                     st = ' left the game.'
                 else:
                     st = ' was kicked out of the game.'
-                if src != None:
+                if src is not None:
                     s = src + st
                 else:
                     s = 'Someone' + st
@@ -1510,20 +1510,20 @@ class DemoFileReader:
             unitlist.append(stats)
         unitlist.sort()
         return unitlist
-        
+
     def playerstats(self):
         """
         Attempts to retrieve the player statistics from the file.
 
         Returns None on failure, a dictionary keyed to real player name otherwise. The value of this dictionary is a tuple of the player stat entries
         """
-        if self.file == None:
+        if self.file is None:
             self._lasterror = 'File ' + self.filename + ' not open.'
             return None
         if self.headersize == 0:
             self._lasterror = 'Cannot read player stats, read the header first'
             return None
-        if self.players == None:
+        if self.players is None:
             self._lasterror = 'Cannot comprehend player stats, read the start script first'
             return None
         if self.incomplete:
@@ -1567,13 +1567,13 @@ class DemoFileReader:
 
         Returns None on failure, a dictionary keyed to real player name otherwise. The value of this dictionary is a list of the
         """
-        if self.file == None:
+        if self.file is None:
             self._lasterror = 'File ' + self.filename + ' not open.'
             return None
         if self.headersize == 0:
             self._lasterror = 'Cannot read teams stats, read the header first'
             return None
-        if self.players == None:
+        if self.players is None:
             self._lasterror = 'Cannot comprehend teams stats, read the start script first'
             return None
         if self.incomplete:
@@ -1644,13 +1644,13 @@ class DemoFileReader:
         """
         Retrieve the team numbers of the winning teams if we did not already do so
         """
-        if self.file == None:
+        if self.file is None:
             self._lasterror = 'File ' + self.filename + ' not open.'
             return None
         if self.headersize == 0:
             self._lasterror = 'Cannot read teams stats, read the header first'
             return None
-        if self.players == None:
+        if self.players is None:
             self._lasterror = 'Cannot comprehend teams stats, read the start script first'
             return None
         if self.incomplete:
