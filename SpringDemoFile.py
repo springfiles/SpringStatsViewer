@@ -815,9 +815,9 @@ class DemoFileReader:
                 self.incomplete = False
             else:
                 self.incomplete = False
-                # print self.filename + ': ' + str(self.numplayers) + ' players in ' + str(self.numteams) + ' teams, team #' + str(self.winningteam) + ' won.'
+                # print(self.filename + ': ' + str(self.numplayers) + ' players in ' + str(self.numteams) + ' teams, team #' + str(self.winningteam) + ' won.')
         return True
-    
+
     def script(self):
         """
         Read the startscript and parse it.
@@ -887,7 +887,7 @@ class DemoFileReader:
                 level = level + 1
                 dictstack.append(currentdict[lastdict])
                 currentdict = currentdict[lastdict]
-                # print 'Pushed ' + lastdict + ' at level ' + str(level) + '[' + str(len(dictstack)) + ']'
+                # print('Pushed ' + lastdict + ' at level ' + str(level) + '[' + str(len(dictstack)) + ']')
                 continue
             test = empty.match(line)
             if test is not None:
@@ -905,7 +905,7 @@ class DemoFileReader:
                     continue
                 dictstack.pop()
                 currentdict = dictstack[-1]
-                # print 'Popped to level ' + str(level) + '[' + str(len(dictstack)) + ']'
+                # print('Popped to level ' + str(level) + '[' + str(len(dictstack)) + ']')
                 continue
             test = simple.match(line)
             if test is not None:
@@ -933,21 +933,21 @@ class DemoFileReader:
             self._lasterror += str(errors) + ' error(s) while parsing start script in file ' + self.filename
             return None
         self._lasterror = None
-        
-        if 'game' not in self.settings or type(self.settings['game']) != type(dict()):
+
+        if 'game' not in self.settings or not isinstance(self.settings['game'], dict):
             self._lasterror = 'Game settings not present or not a dictionary'
             return None
-        
-        if 'gametype' in self.settings['game'] and type(self.settings['game']['gametype']) == type(''):
+
+        if 'gametype' in self.settings['game'] and isinstance(self.settings['game']['gametype'], basestring):
             self.gametype = self.settings['game']['gametype']
         else:
             self.gametype = 'Unknown'
-        
-        if 'mapname' in self.settings['game'] and type(self.settings['game']['mapname']) == type(''):
+
+        if 'mapname' in self.settings['game'] and isinstance(self.settings['game']['mapname'], basestring):
             self.map = self.settings['game']['mapname']
         else:
             self.map = 'Unknown map'
-        
+
         # find out who the players are
         playerseq = 0
         self.players = list()
@@ -958,7 +958,7 @@ class DemoFileReader:
                 continue
             dictname = 'player' + str(playerseq)
             playerdict = self.settings['game'][dictname]
-            if type(playerdict) != type(dict()):
+            if not isinstance(playerdict, dict):
                 self._lasterror = 'Entry for ' + dictname + ' is not a dictionary'
                 return None
             if 'name' not in playerdict or 'spectator' not in playerdict:
@@ -976,7 +976,7 @@ class DemoFileReader:
                     self._lasterror = 'Unable to find team for ' + dictname + ', active player ' + playername
                     return None
                 teamdict = self.settings['game']['team' + str(team)]
-                if type(teamdict) != type(dict()):
+                if not isinstance(teamdict, dict):
                     self._lasterror = 'Team entry for active player ' + dictname + ' is not a dictionary'
                     return None
                 if 'allyteam' not in teamdict:
@@ -989,19 +989,19 @@ class DemoFileReader:
                 # this person is *not* playing, so we make a default entry in the list
                 self.players.append((playername, -1, -1, dictname, playerseq, False))
             self.playernames[playerseq] = playername
-                
+
             playerseq = playerseq + 1
-        
+
         # find out if there are AI's
         aiseq = 0
-        self.ais = list()
+        ais = list()
         while aiseq < 128:
             if 'ai' + str(aiseq) not in self.settings['game']:
                 aiseq = aiseq + 1
                 continue
             dictname = 'ai' + str(aiseq)
             playerdict = self.settings['game'][dictname]
-            if type(playerdict) != type(dict()):
+            if not isinstance(playerdict, dict):
                 self._lasterror = 'Entry for ' + dictname + ' is not a dictionary'
                 return None
             if ('shortname' not in playerdict and 'name' not in playerdict) or 'team' not in playerdict:
@@ -1016,26 +1016,25 @@ class DemoFileReader:
                 self._lasterror = 'Unable to find team for ' + dictname + ', AI player ' + playername
                 return None
             teamdict = self.settings['game']['team' + str(team)]
-            if type(teamdict) != type(dict()):
+            if not isinstance(teamdict, dict):
                 self._lasterror = 'Team entry for active player ' + dictname + ' is not a dictionary'
                 return None
             if 'allyteam' not in teamdict:
                 self._lasterror = 'Unable to find the real team for ' + dictname + ', active player ' + playername
                 return None
             realteam = int(teamdict['allyteam'])
-            self.ais.append((playername, realteam, team, dictname, aiseq, True))
+            ais.append((playername, realteam, team, dictname, aiseq, True))
             # self.playernames[playerseq] = playername
-                
+
             aiseq = aiseq + 1
-        
-        
+
         # find out who the teams are
         teamseq = 0
         self.teams = list()
         while 'team' + str(teamseq) in self.settings['game']:
             dictname = 'team' + str(teamseq)
             teamdict = self.settings['game'][dictname]
-            if type(teamdict) != type(dict()):
+            if not isinstance(teamdict, dict):
                 self._lasterror = 'Entry for ' + dictname + ' is not a dictionary'
                 return None
             if 'teamleader' not in teamdict or 'allyteam' not in teamdict:
@@ -1057,7 +1056,7 @@ class DemoFileReader:
                 if p[2] != teamseq:
                     # find out which AI is controlling this team
                     found = False
-                    for ai in self.ais:
+                    for ai in ais:
                         if ai[2] == teamseq:
                             found = True
                             self.teams.append((ai[0], realteam, dictname, False))
@@ -1115,7 +1114,7 @@ class DemoFileReader:
                 return len(self.demorecords)
             values = chunkheader.unpack_from(buffer_, 0)
             n += chunkheader.size
-            # print 'Read chunk header #' + str(len(self.demorecords)) + ': at ' + str(values[0]) + ' l= ' + str(values[1]) + ' starting at ' + str(n)
+            # print('Read chunk header #' + str(len(self.demorecords)) + ': at ' + str(values[0]) + ' l= ' + str(values[1]) + ' starting at ' + str(n))
             # stuff it in a new chunk
             chunk = DemoRecord()
             chunk.gametime = values[0]
@@ -1143,7 +1142,7 @@ class DemoFileReader:
                 # add new players to the player list
                 if chunk.spectator() == 0:
                     # uh ... adding a new 'real' player, untested and uncharted waters here
-                    self.players.append(((chunk.text(), -1, chunk.team(), None)))
+                    self.players.append((chunk.text(), -1, chunk.team(), None))
                 else:
                     self.players.append((chunk.text(), -1, -1, None))
 
@@ -1205,7 +1204,7 @@ class DemoFileReader:
                 else:
                     dst = None
                 s = rec.text()
-            elif rec.type() == DemoRecord.MAPDRAW and rec.text() != None:
+            elif rec.type() == DemoRecord.MAPDRAW and rec.text() is not None:
                 # only if there is non-zero text in it
                 t = rec.gametime
                 p = rec.player()
@@ -1310,14 +1309,14 @@ class DemoFileReader:
                     continue
                 else:
                     p = raw[0:pos]
-                # print 'pos=' + str(pos) + ' in:' + raw + '/' + p 
+                # print('pos=' + str(pos) + ' in:' + raw + '/' + p)
                 npos = raw[pos + 1:].find(' ')
                 if npos == -1:
                     self._lasterror = 'Cannot find award type in award text'
                     continue
                 else:
                     t = raw[pos + 1:pos + npos + 1]
-                # print 'npos=' + str(npos) + ' in:' + raw[pos+1:] + '/' + t
+                # print('npos=' + str(npos) + ' in:' + raw[pos+1:] + '/' + t)
                 # reason is separated by a comma and a space
                 rpos = raw[pos + npos + 2:].find(', ')
                 if rpos == -1:
@@ -1325,7 +1324,7 @@ class DemoFileReader:
                     continue
                 else:
                     fullt = raw[pos + npos + 2: pos + npos + rpos + 2]
-                # print 'rpos=' + str(rpos) + ' in:' + raw[pos + npos + 2:] + '/' + fullt
+                # print('rpos=' + str(rpos) + ' in:' + raw[pos + npos + 2:] + '/' + fullt)
                 r = raw[pos + npos + rpos + 4:]
                 if t in awarddict:
                     if p != awarddict[t][0]:
@@ -1341,9 +1340,9 @@ class DemoFileReader:
         # sort on player name, then award abbreviation
         result.sort()
         return result
-    
-    def similar(self, a, b, accuracy=1e-9):
 
+    @staticmethod
+    def similar(a, b, accuracy=1e-9):
         """
         Method returns true if the two floating point values a and b are similar
         """
@@ -1391,14 +1390,14 @@ class DemoFileReader:
                     continue
                 else:
                     dmgby = raw[0:pos]
-                # print 'pos=' + str(pos) + ' in:' + raw + '/' + p 
+                # print('pos=' + str(pos) + ' in:' + raw + '/' + p)
                 npos = raw[pos + 1:].find(',')
                 if npos == -1:
                     self._lasterror = 'Cannot find damaged unit in damage text'
                     continue
                 else:
                     dmgto = raw[pos + 1:pos + npos + 1]
-                # print 'npos=' + str(npos) + ' in:' + raw[pos+1:] + '/' + t
+                # print('npos=' + str(npos) + ' in:' + raw[pos+1:] + '/' + t)
                 # reason is separated by a comma and a space
                 rpos = raw[pos + npos + 2:].find(',')
                 if rpos == -1:
@@ -1406,7 +1405,7 @@ class DemoFileReader:
                     continue
                 else:
                     realdmg = raw[pos + npos + 2: pos + npos + rpos + 2]
-                # print 'rpos=' + str(rpos) + ' in:' + raw[pos + npos + 2:] + '/' + fullt
+                # print('rpos=' + str(rpos) + ' in:' + raw[pos + npos + 2:] + '/' + fullt)
                 empdmg = raw[pos + npos + rpos + 3:]
                 if dmgby not in damagedict:
                     damagedict[dmgby] = dict()
@@ -1458,14 +1457,14 @@ class DemoFileReader:
                     continue
                 else:
                     unit = raw[0:pos]
-                # print 'pos=' + str(pos) + ' in:' + raw + '/' + p 
+                # print('pos=' + str(pos) + ' in:' + raw + '/' + p)
                 npos = raw[pos + 1:].find(',')
                 if npos == -1:
                     self._lasterror = 'Cannot find metal cost in unit text'
                     continue
                 else:
                     metal = raw[pos + 1:pos + npos + 1]
-                # print 'npos=' + str(npos) + ' in:' + raw[pos+1:] + '/' + t
+                # print('npos=' + str(npos) + ' in:' + raw[pos+1:] + '/' + t)
                 # reason is separated by a comma and a space
                 rpos = raw[pos + npos + 2:].find(',')
                 if rpos == -1:
@@ -1479,7 +1478,7 @@ class DemoFileReader:
                     continue
                 else:
                     killed = raw[pos + npos + rpos + 3: pos + npos + rpos + xpos + 3]
-                # print 'rpos=' + str(rpos) + ' in:' + raw[pos + npos + 2:] + '/' + fullt
+                # print('rpos=' + str(rpos) + ' in:' + raw[pos + npos + 2:] + '/' + fullt)
                 health = raw[pos + npos + rpos + xpos + 4:]
                 if unit not in unitdict:
                     unitdict[unit] = list()
@@ -1601,7 +1600,7 @@ class DemoFileReader:
             size = struct.calcsize(fmt)
             values = struct.unpack(fmt, buffer[offset:offset + size])
             sizes.append(values[0])
-            # print x[0] + ' has ' + str(values[0]) + ' statistic records from ' + repr(buffer[offset:offset + size])
+            # print(x[0] + ' has ' + str(values[0]) + ' statistic records from ' + repr(buffer[offset:offset + size]))
             offset = offset + size
             xsize = xsize + size + values[0] * self.teamstatelemsize
         # check for consistency
@@ -1684,8 +1683,8 @@ class DemoFileReader:
         """
         self.file.close()
         self.file = None
+
+
 if __name__ == '__main__':
-    print 'This is the Spring Demo File class library, it should not be executed directly.'
-    print 'Although it might have included a self-test here'
-
-
+    print('This is the Spring Demo File class library, it should not be executed directly.')
+    print('Although it might have included a self-test here')
