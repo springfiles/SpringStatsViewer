@@ -242,73 +242,50 @@ class DemoRecord:
         have it, or if the record cannot be parsed
         """
         t = self.type()
-        if t == None:
+
+        if t is None:
             return None
-        elif t == self.SETPLAYERNUM:
-            return ord(self.data[1])
-        elif t == self.PLAYERNAME:
-            return ord(self.data[2])
-        elif t == self.CHAT or t == self.ZK_DAMAGE or t == self.ZK_UNIT or t == self.ZK_AWARD or t == self.ZK_OTHER:
-            return ord(self.data[2])
-        elif t == self.PATH_CHECKSUM:
-            return ord(self.data[1])
-        elif t == self.COMMAND:
-            return ord(self.data[2])
-        elif t == self.SELECT:
-            return ord(self.data[2])
-        elif t == self.PAUSE:
-            return ord(self.data[1])
-        elif t == self.AICOMMAND:
-            return ord(self.data[2])
-        elif t == self.AICOMMANDS:
-            return ord(self.data[2])
-        elif t == self.AISHARE:
-            return ord(self.data[2])
-        elif t == self.USER_SPEED:
-            return ord(self.data[1])
-        elif t == self.DIRECT_CONTROL:
-            return ord(self.data[1])
-        elif t == self.DC_UPDATE:
-            return ord(self.data[1])
-        elif t == self.SHARE:
-            return ord(self.data[1])
-        elif t == self.SETSHARE:
-            return ord(self.data[1])
-        elif t == self.PLAYERSTAT:
-            return ord(self.data[1])
-        elif t == self.MAPDRAW:
-            return ord(self.data[2])
-        elif t == self.SYNCRESPONSE:
-            return ord(self.data[1])
-        elif t == self.SYSTEMMSG:
-            # appears meaningless, it is always 0
-            return ord(self.data[2])
-        elif t == self.STARTPOS:
-            return ord(self.data[1])
-        elif t == self.PLAYERINFO:
-            return ord(self.data[1])
-        elif t == self.PLAYERLEFT:
-            return ord(self.data[1])
-        elif t == self.LUAMSG:
-            return ord(self.data[3])
-        elif t == self.TEAM:
-            return ord(self.data[1])
-        elif t == self.ALLIANCE:
-            return ord(self.data[1])
-        elif t == self.CUSTOM_DATA:
-            return ord(self.data[1])
-        elif t == self.AI_CREATED:
-            return ord(self.data[2])
-        elif t == self.AI_STATE_CHANGED:
-            return ord(self.data[1])
-        elif t == self.CREATE_NEWPLAYER:
-            # appears meaningless, it is always 0, the player number is assigned by SETPLAYERNUM
-            return ord(self.data[2])
-        elif t == self.SETSHARE:
-            return ord(self.data[1])
-        else:
-            return None
-        
+
+        d1 = ord(self.data[1])
+        d2 = ord(self.data[2])
+        d3 = ord(self.data[3])
+        record_type_to_player_number = {
+            self.SETPLAYERNUM: d1,
+            self.PLAYERNAME: d2,
+            self.CHAT: d2,
+            self.ZK_DAMAGE: d2,
+            self.ZK_UNIT: d2,
+            self.ZK_AWARD: d2,
+            self.ZK_OTHER: d2,
+            self.PATH_CHECKSUM: d1,
+            self.COMMAND: d2,
+            self.SELECT: d2,
+            self.PAUSE: d1,
+            self.AICOMMAND: d2,
+            self.AICOMMANDS: d2,
+            self.AISHARE: d2,
+            self.USER_SPEED: d1,
+            self.DIRECT_CONTROL: d1,
+            self.DC_UPDATE: d1,
+            self.SHARE: d1,
+            self.SETSHARE: d1,
+            self.PLAYERSTAT: d1,
+            self.MAPDRAW: d2,
+            self.SYNCRESPONSE: d1,
+            self.SYSTEMMSG: d2,  # appears meaningless, it is always 0
+            self.STARTPOS: d1,
+            self.PLAYERINFO: d1,
+            self.PLAYERLEFT: d1,
+            self.LUAMSG: d3,
+            self.TEAM: d1,
+            self.ALLIANCE: d1,
+            self.CUSTOM_DATA: d1,
+            self.AI_CREATED: d2,
+            self.AI_STATE_CHANGED: d1,
+            self.CREATE_NEWPLAYER: d2,  # appears meaningless, it is always 0, the player number is assigned by SETPLAYERNUM
+        }
+        return record_type_to_player_number.get(t)
+
     def destination(self):
         """
         Returns the destination player number for messages that have an destination player or None for those messages that do not
@@ -329,40 +306,30 @@ class DemoRecord:
         t = self.type()
         if t is None:
             return None
-        elif t == self.QUIT:
-            # apparently there is a 0 byte in front of the label
-            s = self.data[3:]
-        elif t == self.PLAYERNAME:
-            s = self.data[3:]
-        elif t == self.CHAT:
-            s = self.data[4:]
         elif t == self.MAPDRAW and len(self.data) > 9 and ord(self.data[3]) == 0:
             # apparently there is a 0 byte in front of the label
-            s = self.data[9:]
-        elif t == self.SYSTEMMSG:
-            # apparently, there is a 255 byte in front of the label
-            s = self.data[4:]
-        elif t == self.AI_CREATED:
-            # untested
-            s = self.data[8:]
-        elif t == self.CREATE_NEWPLAYER:
-            s = self.data[6:]
-        elif t == self.ZK_DAMAGE:
-            s = self.data[self.__MODSTATSDMG:]
-        elif t == self.ZK_UNIT:
-            s = self.data[self.__MODSTATSUNIT:]
-        elif t == self.ZK_AWARD:
-            s = self.data[self.__AWARD:]
-        elif t == self.ZK_OTHER:
-            s = self.data[self.__SPRINGIE:]
+            index = 9
         else:
-            return None
+            record_type_to_text_index = {
+                self.QUIT: 3,  # apparently there is a 0 byte in front of the label
+                self.PLAYERNAME: 3,
+                self.CHAT: 3,
+                self.SYSTEMMSG: 4,  # apparently, there is a 255 byte in front of the label
+                self.AI_CREATED: 8,  # untested
+                self.CREATE_NEWPLAYER: 6,
+                self.ZK_DAMAGE: self.__MODSTATSDMG,
+                self.ZK_UNIT: self.__MODSTATSUNIT,
+                self.ZK_AWARD: self.__AWARD,
+                self.ZK_OTHER: self.__SPRINGIE,
+            }
+            try:
+                index = record_type_to_text_index[t]
+            except IndexError:
+                return None
+        s = self.data[index:]
         # get rid of any terminating null characters
-        while len(s) > 1 and s[-1] == '\0':
-            s = s[0:-1]
-        if s == '\0':
-            s = None
-        return s
+        s = s.strip('\0')
+        return None if s == '' else s
 
     def spectator(self):
         """
