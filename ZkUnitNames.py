@@ -26,26 +26,28 @@ import re
 __author__ = 'rene'
 __version__ = '0.1.0'
 
+
 class ZkUnitParserError(Exception):
-    '''
+    """
     This modules own exception
-    '''
+    """
     pass
+
 
 class ZkUnitNamesParser:
     def run(self, dir):
-        '''
+        """
         Parse all .lua files in the given directory and extract unitname (the abbreviation) and the
         name (the full display name)
-        '''
+        """
         unitfilemark = re.compile(r'^unitDef\s*=\s*\{\s*$')
         unitname = re.compile(r'^\s*unitname\s*=\s*\[\[(.*)\]\]\s*,\s*$')
         fullname = re.compile(r'^\s*name\s*=\s*\[\[(.*)\]\]\s*,\s*$')
         braceopen = re.compile(r'{')
         braceclose = re.compile(r'}')
         names = dict()
-        for filename in ( os.listdir(dir)):
-            if fnmatch.fnmatch(filename,'*.lua'):
+        for filename in (os.listdir(dir)):
+            if fnmatch.fnmatch(filename, '*.lua'):
                 try:
                     f = open(dir + '/' + filename)
                     try:
@@ -64,14 +66,14 @@ class ZkUnitNamesParser:
                             elif state == 1 and depth == 1:
                                 m = unitname.match(line)
                                 if m:
-                                    if munit != None:
+                                    if munit is not None:
                                         raise ZkUnitParserError()
                                     munit = m.group(1)
                                     continue
                                 else:
                                     m = fullname.match(line)
                                     if m:
-                                        if mfull != None:
+                                        if mfull is not None:
                                             raise ZkUnitParserError()
                                         mfull = m.group(1)
                                         continue
@@ -80,9 +82,9 @@ class ZkUnitNamesParser:
                         if state == 0:
                             print >> sys.stderr, 'file ' + filename + ' does not contain a parseable unit definition'
                         else:
-                            if munit == None:
+                            if munit is None:
                                 print >> sys.stderr, 'file ' + filename + ' does not contain a unit name'
-                            elif mfull == None:
+                            elif mfull is None:
                                 print >> sys.stderr, 'file ' + filename + ' does not contain the full name of the unit'
                             elif munit in names:
                                 print >> sys.stderr, 'file ' + filename + ' contains the name of unit already identified as ' + names[munit][1] + ' in ' + names[munit][2]
@@ -94,10 +96,11 @@ class ZkUnitNamesParser:
                         print >> sys.stderr, 'IO error reading ' + filename + ' at line ' + str(n)
                     finally:
                         f.close()
-                except: 
+                except Exception:
                     print >> sys.stderr, 'error opening ' + filename
         return names
     
+
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         print >> sys.stderr, 'Usage: ZkUnitNames <unit-directory>'
