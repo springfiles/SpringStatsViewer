@@ -23,11 +23,14 @@
 #
 """Python script to collect statistics from one or more spring demo files"""
 
-import struct
 import re
+import struct
+import os.path
+import gzip
+import magic
 
 __author__ = 'rene'
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 
 
 class PlayerStatistics:
@@ -623,10 +626,10 @@ class DemoFileReader:
         """
         Initializer for the class instance. Opens the file named fn (with dirname prepended to it)
         """
-        if dirname is None:
-            self.filename = fn
+        if dirname:
+            self.filename = os.path.join(dirname, fn)
         else:
-            self.filename = dirname + fn
+            self.filename = fn
         # initialize some data members
         self.file = None
         # see .error(), this member gets set to the last error or warning message
@@ -686,7 +689,19 @@ class DemoFileReader:
         self.teamstatistics = None
 
         # open the file, if it fails self.file will remain at None
-        self.file = open(self.filename, 'rb')
+        if self.get_mime_type(self.filename).endswith('gzip'):
+            self.file = gzip.open(self.filename, 'rb')
+        else:
+            self.file = open(self.filename, 'rb')
+
+    @staticmethod
+    def get_mime_type(filename):
+        if hasattr(magic, 'from_file'):
+            return magic.from_file(filename, mime=True)
+        elif hasattr(magic, 'detect_from_filename'):
+            return magic.detect_from_filename(filename).mime_type
+        else:
+            raise RuntimeError('Unknown version or type of "magic" library.')
 
     def header(self):
         """

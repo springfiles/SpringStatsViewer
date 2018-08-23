@@ -112,8 +112,8 @@ class Application(Tix.Frame):
         if self.demofile is not None:
             initDir = os.path.dirname(self.demofile.filename)
         file = tkFileDialog.askopenfile(
-            filetypes=[('Spring Demo File', '*.sdf'), ('All files', '*.*')],
-            defaultextension='.sdf',
+            filetypes=[('Spring Demo File Zipped', '*.sdfz'), ('Spring Demo File', '*.sdf'), ('All files', '*.*')],
+            defaultextension='.sdfz',
             title='Select a Spring Demo File',
             initialdir=initDir)
         # in contrast to the documentation, askopenfile returns an open file instead of
