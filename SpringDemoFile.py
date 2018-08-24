@@ -54,7 +54,7 @@ class PlayerStatistics:
         # number of unit commands resulting from key presses and/or mouse clicks
         self.unitCommands = 0
 
-    def __str__(self):
+    def __repr__(self):
         """
         Pretty printing the structure
         """
@@ -111,7 +111,7 @@ class TeamStatistics:
         self.unitsOutCaptured = 0
         self.unitsKilled = 0
 
-    def __str__(self):
+    def __repr__(self):
         """
         Pretty printing
         """
@@ -372,7 +372,7 @@ class DemoRecord:
         else:
             return None
 
-    def __str__(self):
+    def __repr__(self):
         """
         Pretty printing
         """
