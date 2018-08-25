@@ -248,10 +248,13 @@ class DemoRecord:
 
         if t is None:
             return None
-
-        d1 = ord(self.data[1])
-        d2 = ord(self.data[2])
-        d3 = ord(self.data[3])
+        try:
+            d1 = ord(self.data[1])
+            d2 = ord(self.data[2])
+            d3 = ord(self.data[3])
+        except IndexError:
+            # self.data only 2 long in case of PLAYERLEFT
+            return None
         record_type_to_player_number = {
             self.SETPLAYERNUM: d1,
             self.PLAYERNAME: d2,
@@ -327,7 +330,7 @@ class DemoRecord:
             }
             try:
                 index = record_type_to_text_index[t]
-            except IndexError:
+            except KeyError:
                 return None
         s = self.data[index:]
         # get rid of any terminating null characters
@@ -1084,7 +1087,7 @@ class DemoFileReader:
         self.file.seek(where, 0)
         self.demorecords = list()
         n = 0
-        chunkheader = struct.Struct('fL')
+        chunkheader = struct.Struct('<fI')  # 'fL' old version?
         while n < self.demostreamsize:
             # read header of one record
             if n + chunkheader.size > self.demostreamsize:
