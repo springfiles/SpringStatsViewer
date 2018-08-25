@@ -29,6 +29,12 @@ import os.path
 import gzip
 import magic
 
+try:
+        from typing import Dict, List, Tuple, Union
+except ImportError:
+        pass
+
+
 __author__ = 'rene'
 __version__ = '0.2.2'
 
@@ -218,7 +224,7 @@ class DemoRecord:
         self.gametime = 0.0
         self.data = bytearray()
 
-    def type(self):
+    def type(self):  # type: () -> Union[None, int]
         """
         Returns the type of record or None if the DemoRecord is not mapped to data
         """
@@ -239,7 +245,7 @@ class DemoRecord:
             return v
         return None
 
-    def player(self):
+    def player(self):  # type () -> Union[None, int]
         """
         Returns the initiating player number for messages that have an initiating player or None for those messages that do not
         have it, or if the record cannot be parsed
@@ -292,7 +298,7 @@ class DemoRecord:
         }
         return record_type_to_player_number.get(t)
 
-    def destination(self):
+    def destination(self):  # type () -> Union[None, int]
         """
         Returns the destination player number for messages that have an destination player or None for those messages that do not
         have it, or if the record cannot be parsed
@@ -305,7 +311,7 @@ class DemoRecord:
         else:
             return None
 
-    def text(self):
+    def text(self):  # type () -> Union[None, str]
         """
         Returns the text of messages that have text or None if the message has no text
         """
@@ -337,7 +343,7 @@ class DemoRecord:
         s = s.strip('\0')
         return None if s == '' else s
 
-    def spectator(self):
+    def spectator(self):  # type () -> Union[None, int]
         """
         Returns the value of the spectator field in the createnewplayer record only or None.
         """
@@ -349,7 +355,7 @@ class DemoRecord:
         else:
             return None
 
-    def reason(self):
+    def reason(self):  # type () -> Union[None, int]
         """
         Returns the value of the reason or type field in the PAUSED and PLAYERLEFT record only or None.
         """
@@ -363,7 +369,7 @@ class DemoRecord:
         else:
             return None
 
-    def team(self):
+    def team(self):  # type () -> Union[None, int]
         """
         Returns the value of the team field in the records that have such a field or None.
         """
@@ -678,11 +684,11 @@ class DemoFileReader:
         # 2. the actual team (allyteam) the player belongs to or -1 for spectators
         # 3. the team to which the player is mapped or -1 for spectators
         # 4. the key in the start script dictionary mapping to the player
-        self.players = None
+        self.players = None  # type: List[Tuple[str, int, int, str, int, bool]]
         # dictionary mapping player numbers to player names
         self.playernames = None
         # real team details inferred from the start script
-        self.teams = None
+        self.teams = None  # type: List[Tuple[str, int, str, bool]]
         # Game type and map inferred from the start script
         self.gametype = None
         self.map = None
@@ -698,7 +704,7 @@ class DemoFileReader:
             self.file = open(self.filename, 'rb')
 
     @staticmethod
-    def get_mime_type(filename):
+    def get_mime_type(filename):  # type (str) -> str
         if hasattr(magic, 'from_file'):
             return magic.from_file(filename, mime=True)
         elif hasattr(magic, 'detect_from_filename'):
@@ -706,7 +712,7 @@ class DemoFileReader:
         else:
             raise RuntimeError('Unknown version or type of "magic" library.')
 
-    def header(self):
+    def header(self):  # type () -> bool
         """
         Reads the file header and stuffs whatever it read into data members. Do this only once.
 
@@ -803,7 +809,7 @@ class DemoFileReader:
                 # print(self.filename + ': ' + str(self.numplayers) + ' players in ' + str(self.numteams) + ' teams, team #' + str(self.winningteam) + ' won.')
         return True
 
-    def script(self):
+    def script(self):  # type () -> Union[None, str]
         """
         Read the startscript and parse it.
 
@@ -1065,7 +1071,7 @@ class DemoFileReader:
 
         return self.startscript
 
-    def demostream(self):
+    def demostream(self):  # type () -> Union[None, int]
         """
         Read the demo chunks from the file. These are stored in an internal structure for access after reading
 
@@ -1135,7 +1141,7 @@ class DemoFileReader:
         # all demo records read
         return len(self.demorecords)
 
-    def chatlog(self):
+    def chatlog(self):  # type () -> Union[None, List[Tuple[float, int, str, Union[None, str], str]]]
         """
         Returns a data structure containing the 'chat' log of the game.
 
@@ -1275,7 +1281,7 @@ class DemoFileReader:
 
         return result
 
-    def awards(self):
+    def awards(self):  # type () -> List[Tuple[str, str, str, str]]
         """
         Determine what ZK awards were handed out.
 
@@ -1319,12 +1325,8 @@ class DemoFileReader:
                     continue
                 else:
                     awarddict[t] = (p, t, fullt, r)
-        result = list()
-        for t in awarddict:
-            result.append(awarddict[t])
         # sort on player name, then award abbreviation
-        result.sort()
-        return result
+        return sorted(awarddict.values())
 
     @staticmethod
     def similar(a, b, accuracy=1e-9):
@@ -1353,7 +1355,7 @@ class DemoFileReader:
         else:
             return abbrev
 
-    def damagestats(self):
+    def damagestats(self):  # type () -> List[List[Union[str, float]]
         """
         Determine what ZK damage stats were recorded.
 
@@ -1420,7 +1422,7 @@ class DemoFileReader:
         damagelist.sort()
         return damagelist
 
-    def unitstats(self):
+    def unitstats(self):  # type () -> List[List[Union[str, int, float]]]
         """
         Determine what ZK unit stats were recorded.
 
@@ -1495,7 +1497,7 @@ class DemoFileReader:
         unitlist.sort()
         return unitlist
 
-    def playerstats(self):
+    def playerstats(self):  # type () -> Union[None, Dict[str, PlayerStatistics]]
         """
         Attempts to retrieve the player statistics from the file.
 
@@ -1545,7 +1547,7 @@ class DemoFileReader:
             offset = offset + self.playerstatelemsize
         return self.playerstatistics
 
-    def teamstats(self):
+    def teamstats(self):  # type () -> Dict[str, List[TeamStatistics]]
         """
         Attempts to retrieve the team statistics from the file.
 
@@ -1624,7 +1626,7 @@ class DemoFileReader:
             self.teamstatistics[x[0]] = teamstat
         return self.teamstatistics
 
-    def winners(self):
+    def winners(self):  # type: () -> Union[None, int]
         """
         Retrieve the team numbers of the winning teams if we did not already do so
         """
